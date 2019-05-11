@@ -1,4 +1,6 @@
-import conventionalChangelog from "conventional-changelog";
+import conventionalChangelog from "conventional-changelog-core";
+import conventionalCommits from "conventional-changelog-conventionalcommits";
+import dateFns from "date-fns";
 import getTags, { isVersion } from "./getTags.mjs";
 
 function transform (chunk, cb) {
@@ -7,10 +9,9 @@ function transform (chunk, cb) {
   }
 
   if (chunk.committerDate) {
-    console.log(chunk.committerDate);
-    // chunk.committerDate = dateFormat(chunk.committerDate, 'yyyy-mm-dd', true)
+    chunk.committerDate = dateFns.format(chunk.committerDate, 'YYYY-MM-DD');
   }
-
+console.log(chunk);
   cb(null, chunk)
 }
 
@@ -19,25 +20,44 @@ export default async function () {
   const tags = await getTags();
   const gitRawCommitsOpts = {
     to: tags[0],
-    from: tags[1]
+    from: tags[2]
   };
 
+  const config = await conventionalCommits({
+    types: [
+      { type: 'feat', section: 'Features' },
+      { type: 'fix', section: 'Bug Fixes' },
+      { type: 'perf', section: 'Performance Improvements' },
+      { type: 'revert', section: 'Reverts' },
+      { type: 'docs', section: 'Documentation' },
+      { type: 'style', section: 'Styles' },
+      { type: 'chore', section: 'Miscellaneous Chores' },
+      { type: 'refactor', section: 'Code Refactoring' },
+      { type: 'test', section: 'Tests' },
+      { type: 'build', section: 'Build System' },
+      { type: 'ci', section: 'Continuous Integration' }
+    ]
+  });
+  console.log(config);
   const context = {
-
+    version: tags[0],
   };
   const changelogOpts = {
     releaseCount: 1,
-    // transform
+    //config,
+    transform
   };
-  const parserOpts = {
+  const parserOpts = config.parserOpts || {
 
   };
-  const writerOpts = {
+  const writerOpts = config.writerOpts || {
     includeDetails: true,
     headerPartial: ''
   };
 
   const chunks = [];
+  console.log(gitRawCommitsOpts);
+  const exec = config.conventionalChangelog || conventionalChangelog;
   return new Promise((resolve, reject) => {
     conventionalChangelog(changelogOpts, context, gitRawCommitsOpts, parserOpts, writerOpts)
       // .pipe(process.stdout)
@@ -48,9 +68,9 @@ export default async function () {
         reject(err)
       })
       .on('end', function () {
-        // const result = Buffer.concat(chunks).toString('utf8');
-        console.log(chunks[0].log);
-        resolve(chunks);
+        const result = Buffer.concat(chunks).toString('utf8');
+        console.log(result);
+        resolve();
       });
   });
 
