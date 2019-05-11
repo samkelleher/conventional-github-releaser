@@ -9,9 +9,21 @@ function transform (chunk, cb) {
   }
 
   if (chunk.committerDate) {
-    chunk.committerDate = dateFns.format(chunk.committerDate, 'YYYY-MM-DD');
+    const originalDate = chunk.committerDate;
+    chunk.committerDate = dateFns.format(originalDate, 'YYYY-MM-DD');
+    chunk.date = dateFns.format(originalDate, 'YYYY-MM-DD');
+    // chunk.header = `${dateFns.format(originalDate, 'YYYY-MM-DD h:mma')}: ${chunk.header}`;
+    // if (chunk.subject) {
+    //   chunk.subject = `${dateFns.format(originalDate, 'YYYY-MM-DD h:mma')}: ${chunk.subject}`;
+    // }
   }
-console.log(chunk);
+
+  if (!chunk.type) {
+    // Non conformant commits will not show up otherwise.
+    chunk.type = 'misc';
+    chunk.subject = chunk.header;
+  }
+
   cb(null, chunk)
 }
 
@@ -20,7 +32,7 @@ export default async function () {
   const tags = await getTags();
   const gitRawCommitsOpts = {
     to: tags[0],
-    from: tags[2]
+    from: tags[1]
   };
 
   const config = await conventionalCommits({
@@ -35,12 +47,18 @@ export default async function () {
       { type: 'refactor', section: 'Code Refactoring' },
       { type: 'test', section: 'Tests' },
       { type: 'build', section: 'Build System' },
-      { type: 'ci', section: 'Continuous Integration' }
+      { type: 'ci', section: 'Continuous Integration' },
+      { type: 'misc', section: 'Miscellaneous' }
     ]
   });
-  console.log(config);
+
+  config.writerOpts.commitsSort.push("committerDate");
+
   const context = {
-    version: tags[0],
+    version: gitRawCommitsOpts.to,
+    currentTag: gitRawCommitsOpts.to,
+    previousTag: gitRawCommitsOpts.from,
+    linkCompare: true
   };
   const changelogOpts = {
     releaseCount: 1,
@@ -56,8 +74,7 @@ export default async function () {
   };
 
   const chunks = [];
-  console.log(gitRawCommitsOpts);
-  const exec = config.conventionalChangelog || conventionalChangelog;
+
   return new Promise((resolve, reject) => {
     conventionalChangelog(changelogOpts, context, gitRawCommitsOpts, parserOpts, writerOpts)
       // .pipe(process.stdout)
@@ -69,11 +86,7 @@ export default async function () {
       })
       .on('end', function () {
         const result = Buffer.concat(chunks).toString('utf8');
-        console.log(result);
-        resolve();
+        resolve(result);
       });
   });
-
-
-  // console.log(gitRawCommitsOpts);
 }
