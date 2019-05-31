@@ -6,7 +6,8 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "bundle": "ncc build dist/changelogGenerator.js -o bin"
   },
   "dependencies": {
     "conventional-changelog-conventionalcommits": "^3.0.2",
@@ -14,6 +15,7 @@
     "date-fns": "^1.30.1"
   },
   "devDependencies": {
+    "@zeit/ncc": "^0.18.5",
     "rollup": "^1.13.0",
     "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-json": "^4.0.0",
