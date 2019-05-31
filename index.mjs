@@ -4,8 +4,16 @@ import getBundleReportStats from "./src/getBundleReportStats.mjs";
 const cwd = process.cwd();
 getBundleReportStats(cwd)
     .then((assets) => {
-        console.log(assets);
-        return conventionalGitReleaser();
+        const notes = [
+            {
+                title: 'Bundle Sizes',
+                notes: assets.map(asset => ({
+                    text: asset.summary
+                }))
+            }
+        ];
+
+        return conventionalGitReleaser(notes);
     })
     .then((result) => {
         console.log(result);

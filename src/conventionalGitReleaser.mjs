@@ -47,7 +47,7 @@ function transformCommitForWriting(rawGit, cb) {
     cb(null, commit)
 }
 
-export default async function () {
+export default async function (notes) {
     // 1. Get the last two versions, changes between this will be documented.
     const tags = await getTags();
 
@@ -97,10 +97,19 @@ export default async function () {
     // Options given to 'conventional-changelog-writer', when writing each commit to the document.
     const writerOpts = {
         ...config.writerOpts,
+        commitsSort: [ 'scope', 'subject', 'committerDate' ],
+        // debug: message => console.log(message),
+        finalizeContext: context => {
+            return {
+                ...context,
+                noteGroups: [
+                    ...context.noteGroups,
+                    ...notes
+                ]
+            };
+        }
         // headerPartial: ''
     };
-
-    writerOpts.commitsSort.push("committerDate");
 
     const chunks = [];
 
