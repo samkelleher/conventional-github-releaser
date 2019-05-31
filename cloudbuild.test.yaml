@@ -1,0 +1,4 @@
+steps:
+  - name: eu.gcr.io/samkelleher-com/conventional-github-releaser
+    args: ['--draft']
+
