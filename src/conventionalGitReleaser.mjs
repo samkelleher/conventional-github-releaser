@@ -1,5 +1,7 @@
 import conventionalChangelog from "conventional-changelog-core";
 import conventionalCommits from "conventional-changelog-conventionalcommits";
+import { promises } from 'fs';
+import path from 'path';
 import dateFns from "date-fns";
 import getTags, { isVersion } from "./getTags.mjs";
 
@@ -9,7 +11,9 @@ import getTags, { isVersion } from "./getTags.mjs";
  */
 function transformCommitForWriting(rawGit, cb) {
     let commit = { ...rawGit };
+    commit.shortHash = commit.hash.substring(0, 7);
     if (typeof commit.gitTags === 'string') {
+        commit.gitTags = commit.gitTags.trim();
         commit.version = (commit.gitTags.match(isVersion) || [])[0]
     }
 
@@ -30,7 +34,7 @@ function transformCommitForWriting(rawGit, cb) {
     }
 
     commit.isVerified = commit.gpgStatus === 'G';
-    delete commit.mentions; // because author emails get picked up as mentions
+    commit.mentions = []; // because author emails get picked up as mentions
 
     if (commit.authorName.indexOf(" ")) {
         commit.authorShortName = commit.authorName.slice(0, commit.authorName.indexOf(" "));
@@ -47,7 +51,7 @@ function transformCommitForWriting(rawGit, cb) {
     cb(null, commit)
 }
 
-export default async function (notes) {
+export default async function (extra, fullPr, isDraft) {
     // 1. Get the last two versions, changes between this will be documented.
     const tags = await getTags();
 
@@ -56,7 +60,19 @@ export default async function (notes) {
         format: '%B%n-hash-%n%H%n-gitTags-%n%d%n-committerDate-%n%ci%n-authorName-%n%an%n-authorEmail-%n%ae%n-gpgStatus-%n%G?%n-gpgSigner-%n%GS',
         to: tags[0],
         from: tags[1],
+        // debug: message => console.log(message)
     };
+
+    if (isDraft) {
+        // Do the last tag until the head of the current branch.
+        gitRawCommitsOpts.to = 'HEAD';
+        gitRawCommitsOpts.from = tags[0];
+    }
+
+    if (fullPr) {
+        gitRawCommitsOpts.merges = null;
+        gitRawCommitsOpts['first-parent'] = true;
+    }
 
     const context = {
         version: gitRawCommitsOpts.to,
@@ -67,9 +83,11 @@ export default async function (notes) {
 
     const changelogOpts = {
         releaseCount: 1,
-        //config,
         transform: transformCommitForWriting
     };
+
+    const appDir = path.dirname((new URL(import.meta.url)).pathname);
+    const mainTemplate = await promises.readFile(path.resolve(appDir, './templates/template.hbs'), { encoding: 'utf-8' });
 
     // This gets a standard set of config and formatting based on the 'conventionalcommits' style.
     const config = await conventionalCommits({
@@ -91,7 +109,8 @@ export default async function (notes) {
 
     // Options given to 'conventional-commits-parser'. when evaluating each commit.
     const parserOpts = {
-        ...config.parserOpts
+        ...config.parserOpts,
+        // debug: message => console.log(message),
     };
 
     // Options given to 'conventional-changelog-writer', when writing each commit to the document.
@@ -102,13 +121,10 @@ export default async function (notes) {
         finalizeContext: context => {
             return {
                 ...context,
-                noteGroups: [
-                    ...context.noteGroups,
-                    ...notes
-                ]
+                extra
             };
-        }
-        // headerPartial: ''
+        },
+        mainTemplate // custom template with a footer for rendering 'extra'
     };
 
     const chunks = [];

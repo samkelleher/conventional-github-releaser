@@ -25,7 +25,7 @@ export default async function (cwd) {
             name: asset.chunkNames[0],
             size: asset.size,
             fileName: asset.name,
-            summary: `${asset.chunkNames[0]} asset (\`${asset.name}\`) is ${asset.size > 1000 ? `${Math.floor(asset.size / 1000)}KB` : `${asset.size} bytes`}`
+            sizeHuman: asset.size > 1000 ? `${Math.floor(asset.size / 1000)}KB` : `${asset.size} bytes`
         }
     ));
 

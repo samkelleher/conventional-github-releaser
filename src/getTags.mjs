@@ -1,7 +1,7 @@
 import { exec } from "child_process";
 
 const regex = /tag:\s*(.+?)[,)]/gi;
-export const isVersion = /v[0-9]+\.[0-9]+/gi;
+export const isVersion = /v[0-9]+\.[0-9]+(?:\.[0-9]+)?/gi;
 const cmd = 'git log --decorate --no-color';
 
 
