@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "build": "rollup -c",
-    "package": "pkg dist/changelogGenerator.js --targets node12 --options experimental-modules --out-path ./bin"
+    "package": "pkg dist/changelogGenerator.js --targets node12-linux-x64 --options experimental-modules --out-path ./bin"
   },
   "dependencies": {
     "conventional-changelog-conventionalcommits": "^3.0.2",
