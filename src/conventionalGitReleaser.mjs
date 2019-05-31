@@ -44,8 +44,6 @@ function transformCommitForWriting(rawGit, cb) {
         commit.subject = `${commit.subject} - Verified 🔒`;
     }
 
-    console.log(commit);
-
     cb(null, commit)
 }
 
@@ -58,7 +56,6 @@ export default async function () {
         format: '%B%n-hash-%n%H%n-gitTags-%n%d%n-committerDate-%n%ci%n-authorName-%n%an%n-authorEmail-%n%ae%n-gpgStatus-%n%G?%n-gpgSigner-%n%GS',
         to: tags[0],
         from: tags[1],
-        debug: message => console.log(message), // prints the git-log command
     };
 
     const context = {
@@ -100,15 +97,12 @@ export default async function () {
     // Options given to 'conventional-changelog-writer', when writing each commit to the document.
     const writerOpts = {
         ...config.writerOpts,
-        // includeDetails: true,
         // headerPartial: ''
     };
 
     writerOpts.commitsSort.push("committerDate");
 
     const chunks = [];
-
-    console.log('gitRawCommitsOpts', gitRawCommitsOpts);
 
     return new Promise((resolve, reject) => {
         conventionalChangelog(changelogOpts, context, gitRawCommitsOpts, parserOpts, writerOpts)
