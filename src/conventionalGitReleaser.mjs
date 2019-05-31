@@ -3,90 +3,125 @@ import conventionalCommits from "conventional-changelog-conventionalcommits";
 import dateFns from "date-fns";
 import getTags, { isVersion } from "./getTags.mjs";
 
-function transform (chunk, cb) {
-  if (typeof chunk.gitTags === 'string') {
-    chunk.version = (chunk.gitTags.match(isVersion) || [])[0]
-  }
+/**
+ * The transform function is used after commit parsing, and allowing manipulation before
+ * being given to the writer.
+ */
+function transformCommitForWriting(rawGit, cb) {
+    let commit = { ...rawGit };
+    if (typeof commit.gitTags === 'string') {
+        commit.version = (commit.gitTags.match(isVersion) || [])[0]
+    }
 
-  if (chunk.committerDate) {
-    const originalDate = chunk.committerDate;
-    chunk.committerDate = dateFns.format(originalDate, 'YYYY-MM-DD');
-    chunk.date = dateFns.format(originalDate, 'YYYY-MM-DD');
-    // chunk.header = `${dateFns.format(originalDate, 'YYYY-MM-DD h:mma')}: ${chunk.header}`;
-    // if (chunk.subject) {
-    //   chunk.subject = `${dateFns.format(originalDate, 'YYYY-MM-DD h:mma')}: ${chunk.subject}`;
-    // }
-  }
+    if (commit.committerDate) {
+        const originalDate = commit.committerDate;
+        commit.committerDate = dateFns.format(originalDate, 'YYYY-MM-DD');
+        commit.date = dateFns.format(originalDate, 'YYYY-MM-DD');
+        // commit.header = `${dateFns.format(originalDate, 'YYYY-MM-DD h:mma')}: ${commit.header}`;
+        // if (commit.subject) {
+        //   commit.subject = `${dateFns.format(originalDate, 'YYYY-MM-DD h:mma')}: ${commit.subject}`;
+        // }
+    }
 
-  if (!chunk.type) {
-    // Non conformant commits will not show up otherwise.
-    chunk.type = 'misc';
-    chunk.subject = chunk.header;
-  }
+    if (!commit.type) {
+        // Non conformant commits will not show up otherwise.
+        commit.type = 'misc';
+        commit.subject = commit.header;
+    }
 
-  cb(null, chunk)
+    commit.isVerified = commit.gpgStatus === 'G';
+    delete commit.mentions; // because author emails get picked up as mentions
+
+    if (commit.authorName.indexOf(" ")) {
+        commit.authorShortName = commit.authorName.slice(0, commit.authorName.indexOf(" "));
+        commit.subject = `${commit.subject} - ${commit.authorShortName}`;
+
+    } else {
+        commit.authorShortName = commit.authorName;
+    }
+
+    if (commit.isVerified) {
+        commit.subject = `${commit.subject} - Verified 🔒`;
+    }
+
+    console.log(commit);
+
+    cb(null, commit)
 }
 
 export default async function () {
-  // 1. Get the last two versions, changes between this will be documented.
-  const tags = await getTags();
-  const gitRawCommitsOpts = {
-    to: tags[0],
-    from: tags[1]
-  };
+    // 1. Get the last two versions, changes between this will be documented.
+    const tags = await getTags();
 
-  const config = await conventionalCommits({
-    types: [
-      { type: 'feat', section: 'Features' },
-      { type: 'fix', section: 'Bug Fixes' },
-      { type: 'perf', section: 'Performance Improvements' },
-      { type: 'revert', section: 'Reverts' },
-      { type: 'docs', section: 'Documentation' },
-      { type: 'style', section: 'Styles' },
-      { type: 'chore', section: 'Miscellaneous Chores' },
-      { type: 'refactor', section: 'Code Refactoring' },
-      { type: 'test', section: 'Tests' },
-      { type: 'build', section: 'Build System' },
-      { type: 'ci', section: 'Continuous Integration' },
-      { type: 'misc', section: 'Miscellaneous' }
-    ]
-  });
+    // These options define how data is actually read from git, and how the stream is formatted
+    const gitRawCommitsOpts = {
+        format: '%B%n-hash-%n%H%n-gitTags-%n%d%n-committerDate-%n%ci%n-authorName-%n%an%n-authorEmail-%n%ae%n-gpgStatus-%n%G?%n-gpgSigner-%n%GS',
+        to: tags[0],
+        from: tags[1],
+        debug: message => console.log(message), // prints the git-log command
+    };
 
-  config.writerOpts.commitsSort.push("committerDate");
+    const context = {
+        version: gitRawCommitsOpts.to,
+        currentTag: gitRawCommitsOpts.to,
+        previousTag: gitRawCommitsOpts.from,
+        linkCompare: true
+    };
 
-  const context = {
-    version: gitRawCommitsOpts.to,
-    currentTag: gitRawCommitsOpts.to,
-    previousTag: gitRawCommitsOpts.from,
-    linkCompare: true
-  };
-  const changelogOpts = {
-    releaseCount: 1,
-    //config,
-    transform
-  };
-  const parserOpts = config.parserOpts || {
+    const changelogOpts = {
+        releaseCount: 1,
+        //config,
+        transform: transformCommitForWriting
+    };
 
-  };
-  const writerOpts = config.writerOpts || {
-    includeDetails: true,
-    headerPartial: ''
-  };
+    // This gets a standard set of config and formatting based on the 'conventionalcommits' style.
+    const config = await conventionalCommits({
+        types: [
+            { type: 'feat', section: 'Features ✨' },
+            { type: 'fix', section: 'Bug Fixes 🐞' },
+            { type: 'perf', section: 'Performance Improvements ⏱' },
+            { type: 'revert', section: 'Reverts 🧨' },
+            { type: 'docs', section: 'Documentation 📔' },
+            { type: 'style', section: 'Styles 🎨' },
+            { type: 'chore', section: 'Miscellaneous Chores 🔨' },
+            { type: 'refactor', section: 'Code Refactoring 🧹' },
+            { type: 'test', section: 'Tests ✅' },
+            { type: 'build', section: 'Build System 📦' },
+            { type: 'ci', section: 'Continuous Integration 🔀' },
+            { type: 'misc', section: 'Miscellaneous 👨‍💻👩‍💻' }
+        ]
+    });
 
-  const chunks = [];
+    // Options given to 'conventional-commits-parser'. when evaluating each commit.
+    const parserOpts = {
+        ...config.parserOpts
+    };
 
-  return new Promise((resolve, reject) => {
-    conventionalChangelog(changelogOpts, context, gitRawCommitsOpts, parserOpts, writerOpts)
-      // .pipe(process.stdout)
-      .on('data', chunk => {
-        chunks.push(chunk)
-      })
-      .on('error', function (err) {
-        reject(err)
-      })
-      .on('end', function () {
-        const result = Buffer.concat(chunks).toString('utf8');
-        resolve(result);
-      });
-  });
+    // Options given to 'conventional-changelog-writer', when writing each commit to the document.
+    const writerOpts = {
+        ...config.writerOpts,
+        // includeDetails: true,
+        // headerPartial: ''
+    };
+
+    writerOpts.commitsSort.push("committerDate");
+
+    const chunks = [];
+
+    console.log('gitRawCommitsOpts', gitRawCommitsOpts);
+
+    return new Promise((resolve, reject) => {
+        conventionalChangelog(changelogOpts, context, gitRawCommitsOpts, parserOpts, writerOpts)
+        // .pipe(process.stdout)
+            .on('data', chunk => {
+                chunks.push(chunk)
+            })
+            .on('error', function (err) {
+                reject(err)
+            })
+            .on('end', function () {
+                const result = Buffer.concat(chunks).toString('utf8');
+                resolve(result);
+            });
+    });
 }
