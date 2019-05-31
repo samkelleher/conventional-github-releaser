@@ -1,4 +1,4 @@
-{{> header}}
+const template =`{{> header}}
 
 {{#each commitGroups}}
 
@@ -13,4 +13,6 @@
 {{/each}}
 {{> footer}}
 {{extra}}
+`;
 
+export default template;

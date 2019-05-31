@@ -1,9 +1,8 @@
 import conventionalChangelog from "conventional-changelog-core";
 import conventionalCommits from "conventional-changelog-conventionalcommits";
-import { promises } from 'fs';
-import path from 'path';
 import dateFns from "date-fns";
 import getTags, { isVersion } from "./getTags.mjs";
+import template from './templates/template.mjs';
 
 /**
  * The transform function is used after commit parsing, and allowing manipulation before
@@ -88,8 +87,7 @@ export default async function (extra, fullPr, isDraft) {
         transform: transformCommitForWriting
     };
 
-    const appDir = path.dirname((new URL(import.meta.url)).pathname);
-    const mainTemplate = await promises.readFile(path.resolve(appDir, './templates/template.hbs'), { encoding: 'utf-8' });
+    const mainTemplate = template;
 
     // This gets a standard set of config and formatting based on the 'conventionalcommits' style.
     const config = await conventionalCommits({
