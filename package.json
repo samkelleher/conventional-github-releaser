@@ -6,6 +6,7 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
+    "start": "node --experimental-modules src/index.mjs",
     "build": "rollup -c",
     "package": "pkg dist/changelogGenerator.js --targets node12-alpine-x64 --options experimental-modules --out-path ./bin"
   },
