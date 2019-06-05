@@ -23,6 +23,6 @@ getBundleReportStats(cwd)
         console.log(result);
     })
     .catch(error => {
+        console.log('Failed 💀');
         console.log(error);
-        throw error;
     });
