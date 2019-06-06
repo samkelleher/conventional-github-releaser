@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "start": "APP_VERSION=16927ac node --experimental-modules src/index.mjs",
+    "start": "APP_VERSION=16927ac node --experimental-modules --no-warnings src/index.mjs",
     "start:dist": "node --experimental-modules dist/changelogGenerator.mjs",
     "start:docker": "docker run --rm -it -v $(pwd):/workspace conventional-github-releaser/conventional-github-releaser",
     "build": "rollup -c",

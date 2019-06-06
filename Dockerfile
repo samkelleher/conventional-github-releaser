@@ -16,4 +16,4 @@ VOLUME /workspace
 WORKDIR /workspace
 
 #ENTRYPOINT ["node", "--experimental-modules", "/usr/src/app/index.mjs"]
-ENTRYPOINT ["node", "--experimental-modules", "/usr/src/app/changelogGenerator.mjs"]
+ENTRYPOINT ["node", "--experimental-modules", "--no-warnings", "/usr/src/app/changelogGenerator.mjs"]
