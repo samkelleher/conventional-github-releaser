@@ -137,7 +137,7 @@ export default async function (extra, fullPr, isDraft) {
 
     const chunks = [];
 
-    return new Promise((resolve, reject) => {
+    const body = await new Promise((resolve, reject) => {
         conventionalChangelog(changelogOpts, context, gitRawCommitsOpts, parserOpts, writerOpts)
         // .pipe(process.stdout)
             .on('data', chunk => {
@@ -151,4 +151,10 @@ export default async function (extra, fullPr, isDraft) {
                 resolve(result);
             });
     });
+
+    return {
+        body,
+        version: context.version,
+        previousTag: context.previousTag
+    }
 }

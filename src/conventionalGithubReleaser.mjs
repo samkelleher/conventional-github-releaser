@@ -21,7 +21,7 @@ export default async () => {
 
     const changelog = await generateChangelog(extra, true, isDraft);
 
-    console.log(changelog);
+    console.log(changelog.body);
 
     await uploadToGithub(changelog);
 }
