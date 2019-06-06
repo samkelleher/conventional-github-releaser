@@ -4,3 +4,4 @@ dist
 bin
 package
 *-bundle-*
+.env

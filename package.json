@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "start": "APP_VERSION=16927ac node --experimental-modules --no-warnings src/index.mjs",
+    "start": "node --experimental-modules --no-warnings -r ./node_modules/dotenv/config.js src/index.mjs",
     "start:dist": "node --experimental-modules dist/changelogGenerator.mjs",
     "start:docker": "docker run --rm -it -v $(pwd):/workspace conventional-github-releaser/conventional-github-releaser",
     "build": "rollup -c",
@@ -15,10 +15,12 @@
   },
   "dependencies": {
     "conventional-changelog-conventionalcommits": "^3.0.2",
-    "conventional-changelog-core": "^3.2.2"
+    "conventional-changelog-core": "^3.2.2",
+    "node-fetch": "^2.6.0"
   },
   "devDependencies": {
     "builtin-modules": "^3.1.0",
+    "dotenv": "^8.0.0",
     "pkg": "^4.4.0",
     "rollup": "^1.13.0",
     "rollup-plugin-commonjs": "^10.0.0",
