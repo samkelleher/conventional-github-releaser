@@ -154,6 +154,10 @@ export default async function (extra, fullPr, isDraft) {
             });
     });
 
+    if (!body || !body.length) {
+        console.log(`No report for ${gitRawCommitsOpts.to} and ${gitRawCommitsOpts.from}`);
+    }
+
     return {
         body,
         version: context.version,
