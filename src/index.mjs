@@ -1,5 +1,6 @@
-import conventionalGitReleaser from "./conventionalGitReleaser.mjs";
+import generateChangelog from "./generateChangelog.mjs";
 import getBundleReportStats from "./getBundleReportStats.mjs";
+import uploadToGithub from "./uploadToGithub.mjs";
 
 const isDraft = process.argv.includes('--draft');
 
@@ -17,10 +18,11 @@ getBundleReportStats(cwd)
             });
         }
 
-        return conventionalGitReleaser(extra, true, isDraft);
+        return generateChangelog(extra, true, isDraft);
     })
     .then((result) => {
         console.log(result);
+        return uploadToGithub(result);
     })
     .catch(error => {
         console.log('Failed 💀');
