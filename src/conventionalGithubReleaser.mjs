@@ -6,15 +6,15 @@ export default async () => {
     const isDraft = process.argv.includes('--draft');
 
     const cwd = process.cwd();
-    const assets = await getBundleReportStats(cwd);
+    const statsReport = await getBundleReportStats(cwd);
 
     let extra = '';
 
-    if (assets) {
+    if (statsReport) {
         extra += '### Bundle Sizes\n\n';
         extra += '| Chunk        | File         | Size         |\n';
         extra += '| ------------ | ------------ | ------------ |\n';
-        assets.forEach(asset => {
+        statsReport.assets.forEach(asset => {
             extra += `| ${asset.name} | ${asset.fileName} | ${asset.sizeHuman} |\n`;
         });
     }
@@ -23,5 +23,5 @@ export default async () => {
 
     console.log(changelog.body);
 
-    await uploadToGithub(changelog);
+    await uploadToGithub(changelog, statsReport);
 }

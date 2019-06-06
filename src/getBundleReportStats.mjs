@@ -49,18 +49,30 @@ export default async function (cwd) {
         return undefined;
     }
 
+    const statsFileName = `${version}-bundle-data.json`;
+    const reportFileName = `${version}-bundle-report.html`;
+
     // The path the build container will mount the report.
-    let reportPath = path.join(cwd, `./${version}-bundle-data.json`);
+    let reportPath = path.join(cwd, `./${statsFileName}`);
+    let htmlReportPath = path.join(cwd, `./${reportFileName}`);
 
     if (!await fileExists(reportPath)) {
         // Look up in the reports directory
         // This is when we run the tool directly in repo
-        reportPath = path.join(cwd, `./reports/${version}-bundle-data.json`);
+        reportPath = path.join(cwd, `./reports/${statsFileName}`);
+    }
+
+    if (!await fileExists(htmlReportPath)) {
+        htmlReportPath = path.join(cwd, `./reports/${reportFileName}`);
     }
 
     if (!await fileExists(reportPath)) {
         console.warn(`Did not find report file at ${reportPath}`);
         return;
+    }
+
+    if (!await fileExists(htmlReportPath)) {
+        htmlReportPath = undefined;
     }
 
     const stats = await readJSON(reportPath);
@@ -76,5 +88,13 @@ export default async function (cwd) {
         }
     ));
 
-    return friendlyAssets;
+    return {
+        assets: friendlyAssets,
+        statsFilePath: reportPath,
+        statsFileName,
+        statsDisplayName: 'Bundle Analysis Data',
+        reportFilePath: htmlReportPath,
+        reportFileName,
+        reportDisplayName: 'Bundle Analysis Graphical Report',
+    };
 }
