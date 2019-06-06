@@ -1,8 +1,16 @@
 import conventionalChangelog from "conventional-changelog-core";
 import conventionalCommits from "conventional-changelog-conventionalcommits";
-import dateFns from "date-fns";
 import getTags, { isVersion } from "./getTags.mjs";
 import template from './templates/template.mjs';
+
+const formatDate = (dateValue) => {
+    const date = new Date(dateValue);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = (date.getDate() < 10) ? "0" + date.getDate() : date.getDate();
+    //'YYYY-MM-DD'
+    return `${year}-${month}-${day}`;
+};
 
 /**
  * The transform function is used after commit parsing, and allowing manipulation before
@@ -18,8 +26,8 @@ function transformCommitForWriting(rawGit, cb) {
 
     if (commit.committerDate) {
         const originalDate = commit.committerDate;
-        commit.committerDate = dateFns.format(originalDate, 'YYYY-MM-DD');
-        commit.date = dateFns.format(originalDate, 'YYYY-MM-DD');
+        commit.committerDate = formatDate(originalDate);
+        commit.date = formatDate(originalDate);
         // commit.header = `${dateFns.format(originalDate, 'YYYY-MM-DD h:mma')}: ${commit.header}`;
         // if (commit.subject) {
         //   commit.subject = `${dateFns.format(originalDate, 'YYYY-MM-DD h:mma')}: ${commit.subject}`;
