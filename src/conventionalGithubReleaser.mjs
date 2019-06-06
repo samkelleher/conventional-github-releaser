@@ -19,7 +19,10 @@ export default async () => {
         });
     }
 
-    const changelog = await generateChangelog(extra, true, isDraft);
+    const appVersion = process.env.APP_VERSION; // short git hash = 015e3d2
+    const appTag = process.env.APP_TAG; // version = v1.2.3
+
+    const changelog = await generateChangelog(extra, true, isDraft, appVersion, appTag);
 
     console.log(changelog.body);
 

@@ -58,10 +58,10 @@ function transformCommitForWriting(rawGit, cb) {
     cb(null, commit)
 }
 
-export default async function (extra, fullPr, isDraft) {
+export default async function (extra, fullPr, isDraft, activeVersion) {
     // 1. Get the last two versions, changes between this will be documented.
-    const tags = await getTags();
-    const to = tags.length > 0 ? tags[0] : 'HEAD';
+    const tags = []; // await getTags();
+    const to = tags.length > 0 ? tags[0] : activeVersion || 'HEAD';
     const from = tags.length > 1 ? tags[1] : to;
 
     // These options define how data is actually read from git, and how the stream is formatted
@@ -89,7 +89,7 @@ export default async function (extra, fullPr, isDraft) {
         version: gitRawCommitsOpts.to,
         currentTag: gitRawCommitsOpts.to,
         previousTag: gitRawCommitsOpts.from,
-        linkCompare: true
+        linkCompare: gitRawCommitsOpts.to !== gitRawCommitsOpts.from
     };
 
     const changelogOpts = {
