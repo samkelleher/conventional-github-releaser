@@ -29,6 +29,8 @@ const createRelease = async (githubOwner, githubRepo, tag, token, body) => {
 };
 
 export default async (changelog) => {
+    const noUpload = process.argv.includes('--no-upload');
+    if (noUpload) return;
     const version = process.env.APP_VERSION;
     const githubRepo = process.env.GITHUB_REPO;
     const githubOwner = process.env.GITHUB_OWNER;
