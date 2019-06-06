@@ -20,9 +20,9 @@ const createRelease = async (githubOwner, githubRepo, tag, token, body) => {
                 })
             });
         const json = await response.json();
-        console.log(json);
     } catch (error) {
-        console.log(error);
+        console.error(`Failed to upload changelog for ${tag}`);
+        console.error(error);
         return false;
     }
     return true;
@@ -37,6 +37,8 @@ export default async (changelog) => {
     if (!version || !githubOwner || !githubRepo || !githubToken) {
         return undefined;
     }
+
+    if (changelog.version === 'HEAD') return;
 
     const releaseCreated = await createRelease(githubOwner, githubRepo, changelog.version, githubToken, changelog.body);
 }

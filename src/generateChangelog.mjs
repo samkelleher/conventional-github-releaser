@@ -61,21 +61,23 @@ function transformCommitForWriting(rawGit, cb) {
 export default async function (extra, fullPr, isDraft) {
     // 1. Get the last two versions, changes between this will be documented.
     const tags = await getTags();
+    const to = tags.length > 0 ? tags[0] : 'HEAD';
+    const from = tags.length > 1 ? tags[1] : to;
 
     // These options define how data is actually read from git, and how the stream is formatted
     const gitRawCommitsOpts = {
         format: '%B%n-hash-%n%H%n-gitTags-%n%d%n-committerDate-%n%ci%n-authorName-%n%an%n-authorEmail-%n%ae%n-gpgStatus-%n%G?%n-gpgSigner-%n%GS',
         // to: 'v3.13', // tags[0],
         // from: 'v3.12' // tags[1],
-        to: tags[0],
-        from: tags[1],
+        to,
+        from,
         // debug: message => console.log(message)
     };
 
-    if (isDraft) {
+    if (tags.length > 0 && isDraft) {
         // Do the last tag until the head of the current branch.
         gitRawCommitsOpts.to = 'HEAD';
-        gitRawCommitsOpts.from = tags[0];
+        gitRawCommitsOpts.from = to;
     }
 
     if (fullPr) {
