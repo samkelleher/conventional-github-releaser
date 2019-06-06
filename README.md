@@ -7,7 +7,7 @@ The tool will output in the terminal the Markdown release notes which you can ap
 coming soon.
 
 Checkout this repository as a submobile in your desired project for which you want to generate release notes. Install the
-following command as a script.
+following command as a script.  Or you could use the Docker workflow described below.
 
 ```
 node --experimental-modules tools/conventionalGitReleaser/index.mjs
@@ -25,6 +25,26 @@ For example:
 
 For the report to work best, your project should use commits that conform to the [Conventional Commit](https://www.conventionalcommits.org) standard, and you
 can use a [CLI tool](https://github.com/commitizen/cz-cli) to guide developers to write commits in this format.
+
+## Docker Usage
+
+The utility can simply be added to your existing build workflow by consuming it as a Docker container. Simply mount
+your sourcecode to a `/workspace` volume and start the container. The changelog will be output.  If you use Google Cloud
+Build, then this mount is done automatically. See the `yarn start:docker` for an example"
+
+This command will run the container on the current git directory and output the changelog.
+
+```
+docker run --rm -it -v $(pwd):/workspace conventional-github-releaser/conventional-github-releaser
+```
+
+## Building and Commands
+
+The script is compiled using Rollup and added to a Docker image.
+
+- `yarn start` to run the script on the current repo, great for testing.
+- `yarn build` to generate the runtime script and output it into the `dist` directory/
+- `yarn build:docker` to generate the Docker image.
 
 ## Background
 

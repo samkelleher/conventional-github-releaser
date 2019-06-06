@@ -8,9 +8,9 @@
   "scripts": {
     "start": "node --experimental-modules src/index.mjs",
     "start:dist": "node --experimental-modules dist/changelogGenerator.mjs",
-    "start:docker": "docker run --rm -it -v $(pwd):/workspace gcr/gcr",
+    "start:docker": "docker run --rm -it -v $(pwd):/workspace conventional-github-releaser/conventional-github-releaser",
     "build": "rollup -c",
-    "build:docker": "docker build --tag=\"gcr/gcr:latest\" .",
+    "build:docker": "docker build --tag=\"conventional-github-releaser/conventional-github-releaser:latest\" .",
     "package": "pkg dist/changelogGenerator.js --targets node12-alpine-x64 --options experimental-modules --out-path ./bin"
   },
   "dependencies": {
