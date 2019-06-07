@@ -23,7 +23,7 @@ export default async function () {
 
                     let tag = match[1];
                     const matches = tag.match(isVersion);
-                    if (matches.length > 0) {
+                    if (matches && matches.length > 0) {
                         tagsFound.push(tag);
                     }
                 }
