@@ -85,11 +85,11 @@ export default async (changelog, statsReport) => {
 
     const releaseCreated = await createRelease(githubOwner, githubRepo, changelog.version, githubToken, changelog.body);
 
-    if (statsReport.statsFilePath) {
+    if (statsReport && statsReport.statsFilePath) {
         await uploadReleaseAsset(githubOwner, githubRepo, releaseCreated.id, githubToken, statsReport.statsFilePath, statsReport.statsFileName, statsReport.statsDisplayName);
     }
 
-    if (statsReport.reportFilePath) {
+    if (statsReport && statsReport.reportFilePath) {
         await uploadReleaseAsset(githubOwner, githubRepo, releaseCreated.id, githubToken, statsReport.reportFilePath, statsReport.reportFileName, statsReport.reportDisplayName);
     }
 }

@@ -67,7 +67,7 @@ export default async function (cwd) {
     }
 
     if (!await fileExists(reportPath)) {
-        console.warn(`Did not find report file at ${reportPath}`);
+        // console.warn(`Did not find report file at ${reportPath}`);
         return;
     }
 
