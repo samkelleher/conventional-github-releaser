@@ -1,10 +1,4 @@
 steps:
-  - name: node:alpine
-    entrypoint: yarn
-    args: ['install', '--frozen-lockfile']
-  - name: node:alpine
-    entrypoint: yarn
-    args: ['build']
   - name: gcr.io/cloud-builders/docker
-    args: ['build', '--pull=true','--tag=eu.gcr.io/$PROJECT_ID/conventional-github-releaser:latest', '--tag=eu.gcr.io/$PROJECT_ID/conventional-github-releaser:$SHORT_SHA', '.']
-images: ['eu.gcr.io/$PROJECT_ID/conventional-github-releaser:latest', 'eu.gcr.io/$PROJECT_ID/conventional-github-releaser:$SHORT_SHA']
+    args: ['build', '--pull=true','--tag=gcr.io/$PROJECT_ID/conventional-github-releaser:latest', '--tag=gcr.io/$PROJECT_ID/conventional-github-releaser:$SHORT_SHA', '.']
+images: ['gcr.io/$PROJECT_ID/conventional-github-releaser:latest', 'gcr.io/$PROJECT_ID/conventional-github-releaser:$SHORT_SHA']
