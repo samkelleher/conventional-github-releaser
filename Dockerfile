@@ -8,10 +8,12 @@ RUN apk add --no-cache git gnupg
 
 # This is doing a package build, because I can't get rollup to include externals and still work
 WORKDIR /usr/src/app/
-COPY /src package.json yarn.lock /usr/src/app/
+COPY package.json yarn.lock /usr/src/app/
 RUN yarn install --production --frozen-lockfile --ignore-scripts
 
-VOLUME /workspace
+COPY /src /usr/src/app/
+
+VOLUME /workspaceap
 WORKDIR /workspace
 
 ENTRYPOINT ["node", "--experimental-modules", "--no-warnings", "/usr/src/app/index.mjs"]
