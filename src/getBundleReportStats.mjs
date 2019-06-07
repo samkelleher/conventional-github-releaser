@@ -45,7 +45,7 @@ export default async function (cwd) {
     const version = process.env.APP_VERSION;
 
     if (!version) {
-        console.warn('Not including bundle information as env var "APP_VERSION" is not present.');
+        // console.warn('Not including bundle information as env var "APP_VERSION" is not present.');
         return undefined;
     }
 
