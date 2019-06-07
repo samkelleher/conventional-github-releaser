@@ -60,7 +60,7 @@ function transformCommitForWriting(rawGit, cb) {
 
 export default async function (extra, fullPr, isDraft, activeVersion) {
     // 1. Get the last two versions, changes between this will be documented.
-    const tags = []; // await getTags();
+    const tags = await getTags();
     const to = tags.length > 0 ? tags[0] : activeVersion || 'HEAD';
     const from = tags.length > 1 ? tags[1] : to;
 
