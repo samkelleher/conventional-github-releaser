@@ -3,6 +3,22 @@ import getBundleReportStats from "./getBundleReportStats.mjs";
 import uploadToGithub from "./uploadToGithub.mjs";
 import getTags from "./getTags.mjs";
 
+const sortByName = (a, b) => {
+    const nameA = a.name.toUpperCase();
+    const nameB = b.name.toUpperCase();
+    if (nameA < nameB) {
+        return -1;
+    }
+    if (nameA > nameB) {
+        return 1;
+    }
+
+    // names must be equal
+    return 0;
+};
+
+const primaryChunkNames = ['vendor', 'client', 'main'];
+
 export default async () => {
     const isDraft = process.argv.includes('--draft');
     const appVersion = process.env.APP_VERSION; // short git hash = 015e3d2
@@ -32,31 +48,20 @@ export default async () => {
         extra += '### Bundle Sizes 📦\n\n';
         extra += '| Chunk        | File         | Size         |\n';
         extra += '| ------------ | ------------ | ------------ |\n';
-        const clientChunk = statsReport.assets.find(asset => asset.name === 'client');
-        const vendorChunk = statsReport.assets.find(asset => asset.name === 'vendor');
-        const lazyAssets = statsReport.assets.filter(asset => asset.name !== 'client' && asset.name !== 'vendor').sort((a, b) => {
-            const nameA = a.name.toUpperCase();
-            const nameB = b.name.toUpperCase();
-            if (nameA < nameB) {
-                return -1;
-            }
-            if (nameA > nameB) {
-                return 1;
-            }
-
-            // names must be equal
-            return 0;
-        });
-
-        if (clientChunk) lazyAssets.unshift(clientChunk);
-        if (vendorChunk) lazyAssets.unshift(vendorChunk);
-
-        extra += lazyAssets.map(asset => `| ${asset.name} ${asset.name === 'vendor' || asset.name === 'client' ? '📥' : ''} | ${asset.fileName} | ${asset.sizeHuman} |`).join('\n');
+        const primaryChunks = statsReport.assets.filter(asset => primaryChunkNames.includes(asset.name)).sort(sortByName);
+        const lazyAssets = statsReport.assets.filter(asset => !primaryChunkNames.includes(asset.name)).sort(sortByName);
+        extra += primaryChunks.map(asset => `| ${asset.name} 📥 | ${asset.fileName} | ${asset.sizeHuman} |`).join('\n');
+        extra += lazyAssets.map(asset => `| ${asset.name} | ${asset.fileName} | ${asset.sizeHuman} |`).join('\n');
     }
 
     const changelog = await generateChangelog(to, from, extra, true, isDraft);
 
-    console.log(changelog.body);
+    const newGithubRelease = await uploadToGithub(changelog, statsReport);
 
-    await uploadToGithub(changelog, statsReport);
+    if (newGithubRelease) {
+        console.log(newGithubRelease);
+        console.log(`Version ${newGithubRelease.name} uploaded to GitHub ${newGithubRelease.html_url}`);
+    }
+
+    console.log(changelog.body);
 }

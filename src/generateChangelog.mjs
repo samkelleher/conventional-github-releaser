@@ -1,5 +1,6 @@
 import conventionalChangelog from "conventional-changelog-core";
 import conventionalCommits from "conventional-changelog-conventionalcommits";
+import datefns from 'date-fns';
 import getTags, { isVersion } from "./getTags.mjs";
 import template from './templates/template.mjs';
 
@@ -21,12 +22,15 @@ function transformCommitForWriting(rawGit, cb) {
     commit.shortHash = commit.hash.substring(0, 7);
     if (typeof commit.gitTags === 'string') {
         commit.gitTags = commit.gitTags.trim();
-        commit.version = (commit.gitTags.match(isVersion) || [])[0]
+        commit.version = (commit.gitTags.match(isVersion) || [])[0];
     }
 
     if (commit.committerDate) {
         const originalDate = commit.committerDate;
-        commit.committerDate = formatDate(originalDate);
+        // commit.committerDate = formatDate(originalDate);
+        commit.sortDate = datefns.parse(originalDate).getTime() / 1000;
+        commit.committerDateRaw = originalDate;
+        commit.committerDate = datefns.format(originalDate, 'YYYY-MM-DD h:mma');
         commit.date = formatDate(originalDate);
         // commit.header = `${dateFns.format(originalDate, 'YYYY-MM-DD h:mma')}: ${commit.header}`;
         // if (commit.subject) {
@@ -121,11 +125,12 @@ export default async function (to, from, extra, fullPr, isDraft) {
     // Options given to 'conventional-changelog-writer', when writing each commit to the document.
     const writerOpts = {
         ...config.writerOpts,
-        commitsSort: [ 'scope', 'subject', 'committerDate' ],
+        commitsSort: [ 'scope', 'subject', 'sortDate' ],
         // debug: message => console.log(message),
         finalizeContext: context => {
             return {
                 ...context,
+                date: datefns.format(datefns.parse(context.committerDateRaw), "ddd, MMMM Do YYYY, h:mma"),
                 extra
             };
         },
