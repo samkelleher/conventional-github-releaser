@@ -11,12 +11,14 @@ export default async () => {
     let extra = '';
 
     if (statsReport) {
-        extra += '### Bundle Sizes\n\n';
+        extra += '### Bundle Sizes 📦\n\n';
         extra += '| Chunk        | File         | Size         |\n';
         extra += '| ------------ | ------------ | ------------ |\n';
-        statsReport.assets.forEach(asset => {
-            extra += `| ${asset.name} | ${asset.fileName} | ${asset.sizeHuman} |\n`;
-        });
+        const clientChunk = statsReport.assets.find(asset => asset.name === 'client');
+        const vendorChunk = statsReport.assets.find(asset => asset.name === 'vendor');
+        const lazyAssets = statsReport.assets.filter(asset => asset.name !== 'client' && asset.name !== 'vendor').sort((a, b) => b.name - a.name);
+
+        extra += [vendorChunk, clientChunk, ...lazyAssets].map(asset => `| ${asset.name} ${asset.name === 'vendor' || asset.name === 'client' ? '📥' : ''} | ${asset.fileName} | ${asset.sizeHuman} |`).join('\n');
     }
 
     const appVersion = process.env.APP_VERSION; // short git hash = 015e3d2

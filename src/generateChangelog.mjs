@@ -70,14 +70,14 @@ export default async function (extra, fullPr, isDraft, activeVersion) {
         tags = [];
     }
 
-    const to = tags.length > 0 ? tags[0] : activeVersion || 'HEAD';
-    const from = tags.length > 1 ? tags[1] : to;
+    const to = tags.length > 0 ? tags[0].tag : activeVersion || 'HEAD';
+    const from = tags.length > 1 ? tags[1].tag : to;
 
     // These options define how data is actually read from git, and how the stream is formatted
     const gitRawCommitsOpts = {
         format: '%B%n-hash-%n%H%n-gitTags-%n%d%n-committerDate-%n%ci%n-authorName-%n%an%n-authorEmail-%n%ae%n-gpgStatus-%n%G?%n-gpgSigner-%n%GS',
-        // to: 'v3.13', // tags[0],
-        // from: 'v3.12' // tags[1],
+        // to: 'v3.13', // tags[0].tag,
+        // from: 'v3.12' // tags[1].tag,
         to,
         from,
         // debug: message => console.log(message)

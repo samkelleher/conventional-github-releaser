@@ -1,9 +1,8 @@
 import { exec } from "child_process";
 
-const regex = /tag:\s*(.+?)[,)]/gi;
+const tagRegex = /tag:\s*(.+?)[,)]/gi;
 export const isVersion = /v[0-9]+\.[0-9]+(?:\.[0-9]+)?/gi;
 const cmd = 'git log --decorate --no-color';
-
 
 export default async function () {
     return new Promise((resolve, reject) => {
@@ -19,12 +18,15 @@ export default async function () {
 
             data.split('\n').forEach(function (decorations) {
                 let match;
-                while ((match = regex.exec(decorations))) {
+                while ((match = tagRegex.exec(decorations))) {
 
                     let tag = match[1];
                     const matches = tag.match(isVersion);
                     if (matches && matches.length > 0) {
-                        tagsFound.push(tag);
+                        tagsFound.push({
+                            tag,
+                            commit: decorations
+                        });
                     }
                 }
             });
