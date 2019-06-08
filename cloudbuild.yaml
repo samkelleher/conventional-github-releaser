@@ -1,4 +1,4 @@
 steps:
   - name: gcr.io/cloud-builders/docker
-    args: ['build', '--pull=true','--tag=gcr.io/$PROJECT_ID/conventional-github-releaser:latest', '--tag=gcr.io/$PROJECT_ID/conventional-github-releaser:$SHORT_SHA', '.']
-images: ['gcr.io/$PROJECT_ID/conventional-github-releaser:latest', 'gcr.io/$PROJECT_ID/conventional-github-releaser:$SHORT_SHA']
+    args: ['build', '--pull=true','--tag=gcr.io/$PROJECT_ID/$PROJECT_ID:latest', '--tag=gcr.io/$PROJECT_ID/$PROJECT_ID:$SHORT_SHA', '.']
+images: ['gcr.io/$PROJECT_ID/$PROJECT_ID:latest', 'gcr.io/$PROJECT_ID/$PROJECT_ID:$SHORT_SHA']

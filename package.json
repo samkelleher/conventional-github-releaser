@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "start": "node --experimental-modules --no-warnings -r ./node_modules/dotenv/config.js src/index.mjs",
-    "start:dist": "node --experimental-modules dist/changelogGenerator.mjs",
+    "start:dist": "node --experimental-modules --no-warnings dist/changelogGenerator.mjs",
     "start:docker": "docker run --rm -it -v $(pwd):/workspace conventional-github-releaser/conventional-github-releaser",
     "build": "rollup -c",
     "build:docker": "docker build --tag=\"conventional-github-releaser/conventional-github-releaser:latest\" .",
