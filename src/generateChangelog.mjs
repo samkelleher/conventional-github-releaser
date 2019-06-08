@@ -1,17 +1,8 @@
 import conventionalChangelog from "conventional-changelog-core";
 import conventionalCommits from "conventional-changelog-conventionalcommits";
 import datefns from 'date-fns';
-import getTags, { isVersion } from "./getTags.mjs";
+import { isVersion } from "./getTags.mjs";
 import template from './templates/template.mjs';
-
-const formatDate = (dateValue) => {
-    const date = new Date(dateValue);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = (date.getDate() < 10) ? "0" + date.getDate() : date.getDate();
-    //'YYYY-MM-DD'
-    return `${year}-${month}-${day}`;
-};
 
 /**
  * The transform function is used after commit parsing, and allowing manipulation before
@@ -26,12 +17,13 @@ function transformCommitForWriting(rawGit, cb) {
     }
 
     if (commit.committerDate) {
+
         const originalDate = commit.committerDate;
         // commit.committerDate = formatDate(originalDate);
         commit.sortDate = datefns.parse(originalDate).getTime() / 1000;
         commit.committerDateRaw = originalDate;
         commit.committerDate = datefns.format(originalDate, 'YYYY-MM-DD h:mma');
-        commit.date = formatDate(originalDate);
+        commit.date = datefns.format(originalDate, 'YYYY-MM-DD h:mma');
         // commit.header = `${dateFns.format(originalDate, 'YYYY-MM-DD h:mma')}: ${commit.header}`;
         // if (commit.subject) {
         //   commit.subject = `${dateFns.format(originalDate, 'YYYY-MM-DD h:mma')}: ${commit.subject}`;
@@ -62,22 +54,14 @@ function transformCommitForWriting(rawGit, cb) {
     cb(null, commit)
 }
 
-export default async function (to, from, extra, fullPr, isDraft) {
+export default async function (to, from, extra, fullPr) {
     // These options define how data is actually read from git, and how the stream is formatted
     const gitRawCommitsOpts = {
         format: '%B%n-hash-%n%H%n-gitTags-%n%d%n-committerDate-%n%ci%n-authorName-%n%an%n-authorEmail-%n%ae%n-gpgStatus-%n%G?%n-gpgSigner-%n%GS',
-        // to: 'v3.13', // tags[0].tag,
-        // from: 'v3.12' // tags[1].tag,
         to,
         from,
         // debug: message => console.log(message)
     };
-
-    if (from !== to && isDraft) {
-        // Do the last tag until the head of the current branch.
-        gitRawCommitsOpts.to = 'HEAD';
-        gitRawCommitsOpts.from = to;
-    }
 
     if (fullPr) {
         gitRawCommitsOpts.merges = null;
@@ -130,7 +114,7 @@ export default async function (to, from, extra, fullPr, isDraft) {
         finalizeContext: context => {
             return {
                 ...context,
-                date: datefns.format(datefns.parse(context.committerDateRaw), "ddd, MMMM Do YYYY, h:mma"),
+                date: context.committerDateRaw ? datefns.format(datefns.parse(context.committerDateRaw), "ddd, MMMM Do YYYY, h:mma") : context.date,
                 extra
             };
         },

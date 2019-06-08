@@ -36,8 +36,33 @@ export default async () => {
         tags = [];
     }
 
-    const to = tags.length > 0 ? tags[0].tag : appVersion || 'HEAD';
-    const from = tags.length > 1 ? tags[1].tag : to;
+    // By default, select the last 2 tags.
+    let to = tags.length > 0 ? tags[0].tag : appVersion || 'HEAD';
+    let from = tags.length > 1 ? tags[1].tag : to;
+
+    // When draft, get the current latest commit to the last tag instead.
+    if (from !== to && isDraft) {
+        to = 'HEAD';
+        from = to;
+    }
+
+    if (appTag) {
+        const desiredToTag = tags.find(tag => tag.tag === appTag);
+        let desiredTagPosition;
+        let desiredFromTag;
+        if (desiredToTag) {
+            desiredTagPosition = tags.indexOf(desiredToTag);
+            if (tags.length > (desiredTagPosition + 1)) {
+                desiredFromTag = tags[desiredTagPosition + 1]; // get next tag
+            } else {
+                // There are no more tags, so this must be the first tag for this repo.
+                // TODO: Walk back to the first commit instead
+                desiredFromTag = desiredToTag;
+            }
+            to = desiredToTag.tag;
+            from = desiredFromTag.tag;
+        }
+    }
 
     const cwd = process.cwd();
     const statsReport = await getBundleReportStats(cwd);
@@ -54,7 +79,7 @@ export default async () => {
         extra += lazyAssets.map(asset => `| ${asset.name} | ${asset.fileName} | ${asset.sizeHuman} |`).join('\n');
     }
 
-    const changelog = await generateChangelog(to, from, extra, true, isDraft);
+    const changelog = await generateChangelog(to, from, extra, true);
 
     const newGithubRelease = await uploadToGithub(changelog, statsReport);
 
