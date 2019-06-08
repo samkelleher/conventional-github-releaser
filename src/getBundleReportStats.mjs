@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import prettyBytes from 'pretty-bytes';
 
 const fsPromises = fs.promises;
 
@@ -84,7 +85,7 @@ export default async function (cwd) {
             name: asset.chunkNames[0],
             size: asset.size,
             fileName: asset.name,
-            sizeHuman: asset.size > 1000 ? `${Math.floor(asset.size / 1000)}KB` : `${asset.size} bytes`
+            sizeHuman: prettyBytes(asset.size)
         }
     ));
 
