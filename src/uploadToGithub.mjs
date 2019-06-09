@@ -127,12 +127,11 @@ export default async (changelog, statsReport) => {
     const noAssets = process.argv.includes('--no-assets');
 
     if (noUpload) return;
-    const version = process.env.APP_VERSION;
     const githubRepo = process.env.GITHUB_REPO;
     const githubOwner = process.env.GITHUB_OWNER;
     const githubToken = process.env.GITHUB_API_TOKEN;
 
-    if (!version || !githubOwner || !githubRepo || !githubToken) {
+    if (!githubOwner || !githubRepo || !githubToken) {
         return undefined;
     }
 
