@@ -4,10 +4,11 @@ const tagRegex = /tag:\s*(.+?)[,)]/gi;
 export const isVersion = /v[0-9]+\.[0-9]+(?:\.[0-9]+)?/gi;
 const cmd = 'git log --no-color --format=%H%d';
 
-export default async function () {
+export default async function (cwd = null) {
     return new Promise((resolve, reject) => {
         exec(cmd, {
-            maxBuffer: Infinity
+            maxBuffer: Infinity,
+            cwd
         }, function (err, data) {
             if (err) {
                 reject(err);
