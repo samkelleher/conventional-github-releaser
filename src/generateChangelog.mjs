@@ -13,17 +13,18 @@ function transformCommitForWriting(rawGit, cb) {
     commit.shortHash = commit.hash.substring(0, 7);
     if (typeof commit.gitTags === 'string') {
         commit.gitTags = commit.gitTags.trim();
-        commit.version = (commit.gitTags.match(isVersion) || [])[0];
+        const versionMatches = commit.gitTags.match(isVersion);
+        if (versionMatches && versionMatches.length > 0) {
+            commit.version = versionMatches[0];
+        }
     }
 
     if (commit.committerDate) {
-
         const originalDate = commit.committerDate;
-        // commit.committerDate = formatDate(originalDate);
         commit.sortDate = datefns.parse(originalDate).getTime() / 1000;
         commit.committerDateRaw = originalDate;
-        commit.committerDate = datefns.format(originalDate, 'YYYY-MM-DD h:mma');
-        commit.date = datefns.format(originalDate, 'YYYY-MM-DD h:mma');
+        commit.committerDate = datefns.format(originalDate, 'YYYY-MM-DD');
+        commit.date = datefns.format(originalDate, 'YYYY-MM-DD');
         // commit.header = `${dateFns.format(originalDate, 'YYYY-MM-DD h:mma')}: ${commit.header}`;
         // if (commit.subject) {
         //   commit.subject = `${dateFns.format(originalDate, 'YYYY-MM-DD h:mma')}: ${commit.subject}`;
@@ -54,13 +55,15 @@ function transformCommitForWriting(rawGit, cb) {
     cb(null, commit)
 }
 
-export default async function (to, from, extra, fullPr) {
+export default async function (to, from, extra, fullPr, cwd = null) {
     // These options define how data is actually read from git, and how the stream is formatted
     const gitRawCommitsOpts = {
         format: '%B%n-hash-%n%H%n-gitTags-%n%d%n-committerDate-%n%ci%n-authorName-%n%an%n-authorEmail-%n%ae%n-gpgStatus-%n%G?%n-gpgSigner-%n%GS',
         to,
-        from,
-        // debug: message => console.log(message)
+        from
+    };
+    const gitRawExecOpts = {
+        cwd
     };
 
     if (fullPr) {
@@ -72,13 +75,17 @@ export default async function (to, from, extra, fullPr) {
         version: gitRawCommitsOpts.to,
         currentTag: gitRawCommitsOpts.to,
         previousTag: gitRawCommitsOpts.from,
-        linkCompare: gitRawCommitsOpts.to !== gitRawCommitsOpts.from
+        linkCompare: gitRawCommitsOpts.to !== gitRawCommitsOpts.from,
     };
 
     const changelogOpts = {
         releaseCount: 1,
         transform: transformCommitForWriting
     };
+
+    if (cwd) {
+        changelogOpts.pkg = { path: `${cwd}/package.json` };
+    }
 
     const mainTemplate = template;
 
@@ -110,11 +117,21 @@ export default async function (to, from, extra, fullPr) {
     const writerOpts = {
         ...config.writerOpts,
         commitsSort: [ 'scope', 'subject', 'sortDate' ],
-        // debug: message => console.log(message),
+        generateOn: function (commit) {
+            // Build in generateOn uses mandatory semVer validation.
+            if (!commit.version) return false;
+            const matches = commit.version.match(isVersion);
+            return matches && matches.length > 0;
+        },
         finalizeContext: context => {
+            let dateTitle = context.date;
+            if (context.committerDateRaw) {
+                const dateTitleFriendly = datefns.format(datefns.parse(context.committerDateRaw), "ddd, MMMM Do YYYY, h:mma");
+                dateTitle = dateTitleFriendly;
+            }
             return {
                 ...context,
-                date: context.committerDateRaw ? datefns.format(datefns.parse(context.committerDateRaw), "ddd, MMMM Do YYYY, h:mma") : context.date,
+                date: dateTitle,
                 extra
             };
         },
@@ -124,7 +141,7 @@ export default async function (to, from, extra, fullPr) {
     const chunks = [];
 
     const body = await new Promise((resolve, reject) => {
-        conventionalChangelog(changelogOpts, context, gitRawCommitsOpts, parserOpts, writerOpts)
+        conventionalChangelog(changelogOpts, context, gitRawCommitsOpts, parserOpts, writerOpts, gitRawExecOpts)
         // .pipe(process.stdout)
             .on('data', chunk => {
                 chunks.push(chunk)
