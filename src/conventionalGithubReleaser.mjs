@@ -26,10 +26,12 @@ export default async () => {
 
     // 1. Get the last two versions, changes between this will be documented.
 
+    const gitCwd = process.env.REPO_PATH || null;
+
     let tags;
 
     try {
-        tags = await getTags();
+        tags = await getTags(gitCwd);
     } catch (error) {
         console.error('Failed to get tags.');
         console.error(error);
@@ -46,7 +48,7 @@ export default async () => {
         from = to;
     }
 
-    if (appTag) {
+    if (appTag && to !== appTag) {
         const desiredToTag = tags.find(tag => tag.tag === appTag);
         let desiredTagPosition;
         let desiredFromTag;
@@ -79,12 +81,11 @@ export default async () => {
         extra += lazyAssets.map(asset => `| ${asset.name} | ${asset.fileName} | ${asset.sizeHuman} |`).join('\n');
     }
 
-    const changelog = await generateChangelog(to, from, extra, true);
+    const changelog = await generateChangelog(to, from, extra, false, gitCwd);
 
     const newGithubRelease = await uploadToGithub(changelog, statsReport);
 
     if (newGithubRelease) {
-        console.log(newGithubRelease);
         console.log(`Version ${newGithubRelease.name} uploaded to GitHub ${newGithubRelease.html_url}`);
     }
 
