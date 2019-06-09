@@ -13,4 +13,4 @@ steps:
 secrets:
   - kmsKeyName: projects/conventional-github-releaser/locations/us/keyRings/public/cryptoKeys/build
     secretEnv:
-      GITHUB_API_TOKEN: CiQAKlHSq2ZcPUqiU+EpTh3YXjm+DF2fSgKVR1tU/YtSXJ1lg64SUQAeWRNUiG2rosvAzy9qoGbMRdgmZp8qVzEXNmvpVM/1vF8m2khk9yj0c+AKAkUoJRMtpeGPQB4olzWEkiOWXjJzjloGUvl0+tghUtMm8AjZqA==
+      GITHUB_API_TOKEN: CiQAfXQzpO9NnOby6YW8EYo6dHN8xo7uX0mW9imXN5wO5E0b5ToSUQBBgo3q1n060PG/oZmvUN3BBzHGyUPkCR6tkLtB7pQqSIwIUJxjjBG6MJSAzfiCMIEz5e2dotVcQmZB6+LnphiV7/Z0zr0Ba+QGvdZ6Qq34KQ==
