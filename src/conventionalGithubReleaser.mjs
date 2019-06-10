@@ -78,7 +78,9 @@ export default async () => {
         const primaryChunks = statsReport.assets.filter(asset => primaryChunkNames.includes(asset.name)).sort(sortByName);
         const lazyAssets = statsReport.assets.filter(asset => !primaryChunkNames.includes(asset.name)).sort(sortByName);
         extra += primaryChunks.map(asset => `| ${asset.name} 📥 | ${asset.fileName} | ${asset.sizeHuman} |`).join('\n');
+        if (primaryChunks.length) extra += '\n';
         extra += lazyAssets.map(asset => `| ${asset.name} | ${asset.fileName} | ${asset.sizeHuman} |`).join('\n');
+        if (lazyAssets.length) extra += '\n';
     }
 
     const changelog = await generateChangelog(to, from, extra, false, gitCwd);
