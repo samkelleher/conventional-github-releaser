@@ -80,7 +80,7 @@ export default async function (to, from, extra, fullPr, cwd = null) {
 
     const changelogOpts = {
         releaseCount: 1,
-        outputUnreleased: false,
+        outputUnreleased: fullPr || false,
         transform: transformCommitForWriting
     };
 
@@ -157,7 +157,7 @@ export default async function (to, from, extra, fullPr, cwd = null) {
     });
 
     if (!body || !body.length) {
-        console.log(`No report for ${gitRawCommitsOpts.to} and ${gitRawCommitsOpts.from}`);
+        console.log(`No report from ${gitRawCommitsOpts.from} to ${gitRawCommitsOpts.to}`);
     }
 
     return {

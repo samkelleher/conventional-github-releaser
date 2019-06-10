@@ -21,6 +21,7 @@ const primaryChunkNames = ['vendor', 'client', 'main'];
 
 export default async () => {
     const isDraft = process.argv.includes('--draft');
+    const pullRequestWorkflow = process.argv.includes('--pull-request-based');
     const appVersion = process.env.APP_VERSION; // short git hash = 015e3d2
     const appTag = process.env.APP_TAG; // version = v1.2.3
 
@@ -44,8 +45,8 @@ export default async () => {
 
     // When draft, get the current latest commit to the last tag instead.
     if (from !== to && isDraft) {
-        to = 'HEAD';
         from = to;
+        to = 'HEAD';
     }
 
     if (appTag && to !== appTag) {
@@ -83,7 +84,7 @@ export default async () => {
         if (lazyAssets.length) extra += '\n';
     }
 
-    const changelog = await generateChangelog(to, from, extra, false, gitCwd);
+    const changelog = await generateChangelog(to, from, extra, pullRequestWorkflow, gitCwd);
 
     const newGithubRelease = await uploadToGithub(changelog, statsReport);
 
