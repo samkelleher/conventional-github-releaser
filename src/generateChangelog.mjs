@@ -55,7 +55,7 @@ function transformCommitForWriting(rawGit, cb) {
     cb(null, commit)
 }
 
-export default async function (to, from, extra, fullPr, cwd = null) {
+export default async function (to, from, extra, fullPr, isDraft, cwd = null) {
     // These options define how data is actually read from git, and how the stream is formatted
     const gitRawCommitsOpts = {
         format: '%B%n-hash-%n%H%n-gitTags-%n%d%n-committerDate-%n%ci%n-authorName-%n%an%n-authorEmail-%n%ae%n-gpgStatus-%n%G?%n-gpgSigner-%n%GS',
@@ -80,7 +80,7 @@ export default async function (to, from, extra, fullPr, cwd = null) {
 
     const changelogOpts = {
         releaseCount: 1,
-        outputUnreleased: fullPr || false,
+        outputUnreleased: isDraft || false,
         transform: transformCommitForWriting
     };
 

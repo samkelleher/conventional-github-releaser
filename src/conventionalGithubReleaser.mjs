@@ -84,7 +84,7 @@ export default async () => {
         if (lazyAssets.length) extra += '\n';
     }
 
-    const changelog = await generateChangelog(to, from, extra, pullRequestWorkflow, gitCwd);
+    const changelog = await generateChangelog(to, from, extra, pullRequestWorkflow, isDraft, gitCwd);
 
     const newGithubRelease = await uploadToGithub(changelog, statsReport);
 
