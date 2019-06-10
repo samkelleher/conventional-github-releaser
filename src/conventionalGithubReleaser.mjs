@@ -50,12 +50,12 @@ export default async () => {
 
     if (appTag && to !== appTag) {
         const desiredToTag = tags.find(tag => tag.tag === appTag);
-        let desiredTagPosition;
+        let desiredToTagPosition;
         let desiredFromTag;
         if (desiredToTag) {
-            desiredTagPosition = tags.indexOf(desiredToTag);
-            if (tags.length > (desiredTagPosition + 1)) {
-                desiredFromTag = tags[desiredTagPosition + 1]; // get next tag
+            desiredToTagPosition = tags.indexOf(desiredToTag);
+            if (tags.length > (desiredToTagPosition + 1)) {
+                desiredFromTag = tags[desiredToTagPosition + 1]; // get next tag
             } else {
                 // There are no more tags, so this must be the first tag for this repo.
                 // TODO: Walk back to the first commit instead

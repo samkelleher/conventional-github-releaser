@@ -80,6 +80,7 @@ export default async function (to, from, extra, fullPr, cwd = null) {
 
     const changelogOpts = {
         releaseCount: 1,
+        outputUnreleased: false,
         transform: transformCommitForWriting
     };
 
@@ -117,12 +118,12 @@ export default async function (to, from, extra, fullPr, cwd = null) {
     const writerOpts = {
         ...config.writerOpts,
         commitsSort: [ 'scope', 'subject', 'sortDate' ],
-        generateOn: function (commit) {
-            // Build in generateOn uses mandatory semVer validation.
-            if (!commit.version) return false;
-            const matches = commit.version.match(isVersion);
-            return matches && matches.length > 0;
-        },
+        // generateOn: function (commit) {
+        //     // Build in generateOn uses mandatory semVer validation.
+        //     if (!commit.version) return false;
+        //     const matches = commit.version.match(isVersion);
+        //     return matches && matches.length > 0;
+        // },
         finalizeContext: context => {
             let dateTitle = context.date;
             if (context.committerDateRaw) {
