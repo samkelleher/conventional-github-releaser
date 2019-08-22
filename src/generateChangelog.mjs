@@ -21,10 +21,11 @@ function transformCommitForWriting(rawGit, cb) {
 
     if (commit.committerDate) {
         const originalDate = commit.committerDate;
-        commit.sortDate = datefns.parse(originalDate).getTime() / 1000;
+        const originalDateAsDate = datefns.parseISO(originalDate);
+        commit.sortDate = originalDateAsDate.getTime() / 1000;
         commit.committerDateRaw = originalDate;
-        commit.committerDate = datefns.format(originalDate, 'YYYY-MM-DD');
-        commit.date = datefns.format(originalDate, 'YYYY-MM-DD');
+        commit.committerDate = datefns.format(originalDateAsDate, 'yyyy-MM-dd');
+        commit.date = commit.committerDate;
         // commit.header = `${dateFns.format(originalDate, 'YYYY-MM-DD h:mma')}: ${commit.header}`;
         // if (commit.subject) {
         //   commit.subject = `${dateFns.format(originalDate, 'YYYY-MM-DD h:mma')}: ${commit.subject}`;
@@ -127,7 +128,7 @@ export default async function (to, from, extra, fullPr, isDraft, cwd = null) {
         finalizeContext: context => {
             let dateTitle = context.date;
             if (context.committerDateRaw) {
-                const dateTitleFriendly = datefns.format(datefns.parse(context.committerDateRaw), "ddd, MMMM Do YYYY, h:mma");
+                const dateTitleFriendly = datefns.format(datefns.parseISO(context.committerDateRaw), "EEEE, MMMM do yyyy, h:mma");
                 dateTitle = dateTitleFriendly;
             }
             return {
