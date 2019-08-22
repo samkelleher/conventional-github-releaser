@@ -13,7 +13,7 @@ RUN yarn install --production --frozen-lockfile --ignore-scripts
 
 COPY /src /usr/src/app/
 
-VOLUME /workspaceap
+VOLUME /workspace
 WORKDIR /workspace
 
 ENTRYPOINT ["node", "--experimental-modules", "--no-warnings", "/usr/src/app/index.mjs"]
