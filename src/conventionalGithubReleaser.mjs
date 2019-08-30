@@ -76,8 +76,14 @@ export default async () => {
         extra += '### Bundle Sizes 📦\n\n';
         extra += '| Chunk        | File         | Size         |\n';
         extra += '| ------------ | ------------ | ------------ |\n';
-        const primaryChunks = statsReport.assets.filter(asset => primaryChunkNames.includes(asset.name)).sort(sortByName);
-        const lazyAssets = statsReport.assets.filter(asset => !primaryChunkNames.includes(asset.name)).sort(sortByName);
+        const jsAssets = statsReport.assets.filter(asset => asset.fileName.endsWith('js'));
+        const primaryChunks = jsAssets.filter(asset => primaryChunkNames.includes(asset.name)).sort(sortByName);
+        let lazyAssetsList = jsAssets.filter(asset => !primaryChunkNames.includes(asset.name)).map(asset => ({
+            ...asset,
+            name: asset.name || ((asset.fileName || '').endsWith('js') ? asset.fileName : undefined)
+        }));
+        console.log(lazyAssetsList);
+        const lazyAssets = lazyAssetsList.sort(sortByName);
         extra += primaryChunks.map(asset => `| ${asset.name} 📥 | ${asset.fileName} | ${asset.sizeHuman} |`).join('\n');
         if (primaryChunks.length) extra += '\n';
         extra += lazyAssets.map(asset => `| ${asset.name} | ${asset.fileName} | ${asset.sizeHuman} |`).join('\n');
