@@ -12,4 +12,4 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Build the Docker image
-        run: docker build --pull=true --tag=docker.pkg.github.com/$GITHUB_REPOSITORY/conventional-github-releaser:latest --tag=docker.pkg.github.com/$GITHUB_REPOSITORY/conventional-github-releaser:$SHORT_SHA .
+        run: docker build --pull=true --tag=docker.pkg.github.com/$GITHUB_REPOSITORY/conventional-github-releaser:latest --tag=docker.pkg.github.com/$GITHUB_REPOSITORY/conventional-github-releaser:$GITHUB_SHA:0:7 .
