@@ -1,0 +1,13 @@
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Create + Publish Image
+    steps:
+      - name: Build the Docker image
+        uses: actions/checkout@v1
+        run: docker build --pull=true --tag=docker.pkg.github.com/$GITHUB_REPOSITORY/conventional-github-releaser:latest --tag=docker.pkg.github.com/$GITHUB_REPOSITORY/conventional-github-releaser:$SHORT_SHA .
