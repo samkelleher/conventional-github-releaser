@@ -24,6 +24,9 @@ steps:
       - 'GITHUB_OWNER=$_GITHUB_OWNER'
     args: ['tag', 'gcr.io/$PROJECT_ID/$PROJECT_ID:$SHORT_SHA', 'docker.pkg.github.com/$GITHUB_OWNER/$GITHUB_REPO/$PROJECT_ID:$TAG_NAME']
   - name: gcr.io/cloud-builders/docker
+    env:
+      - 'GITHUB_REPO=$_GITHUB_REPO'
+      - 'GITHUB_OWNER=$_GITHUB_OWNER'
     args: ['tag', 'gcr.io/$PROJECT_ID/$PROJECT_ID:$SHORT_SHA', 'docker.pkg.github.com/$GITHUB_OWNER/$GITHUB_REPO/$PROJECT_ID:$SHORT_SHA']
   - name: gcr.io/cloud-builders/docker
     env:
