@@ -1,3 +1,5 @@
+name: Docker Image CI
+
 on:
   push:
     branches:
@@ -9,5 +11,5 @@ jobs:
     name: Create + Publish Image
     steps:
       - name: Build the Docker image
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v1
         run: docker build --pull=true --tag=docker.pkg.github.com/$GITHUB_REPOSITORY/conventional-github-releaser:latest --tag=docker.pkg.github.com/$GITHUB_REPOSITORY/conventional-github-releaser:$SHORT_SHA .
