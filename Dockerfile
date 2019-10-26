@@ -15,5 +15,5 @@ COPY /src /usr/src/app/
 
 VOLUME /workspace
 WORKDIR /workspace
-
+USER node
 ENTRYPOINT ["node", "--experimental-modules", "--no-warnings", "/usr/src/app/index.mjs"]
