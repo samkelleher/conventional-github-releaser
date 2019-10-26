@@ -1,6 +1,8 @@
 # Conventional Commit Release Notes Generator for GitHub
 > Use the Conventional Commits standard to auto-generate release notes.
 
+![Screenshot](/screenshot.jpg?raw=true "Conventional Commit Release Notes Generator")
+
 ## Getting Started
 
 This tool is designed to be consumed as a Docker image and called as part of your CI pipeline. It is optimised to run
