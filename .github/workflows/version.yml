@@ -1,0 +1,19 @@
+name: Tag Docker Version
+
+on:
+  push:
+    tags: v*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Tag Docker Version
+    steps:
+      - name: Login to GitHub Docker Registry
+        run: docker login docker.pkg.github.com -u $GITHUB_ACTOR -p ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull SHA image
+        run: docker push docker.pkg.github.com/$GITHUB_REPOSITORY/conventional-github-releaser:${GITHUB_SHA:0:7}
+      - name: Tag SHA image with version
+        run: docker tag docker.pkg.github.com/$GITHUB_REPOSITORY/conventional-github-releaser:${GITHUB_SHA:0:7} docker.pkg.github.com/$GITHUB_REPOSITORY/conventional-github-releaser:${GITHUB_REF/refs\/tags\//}
+      - name: Publish versioned image
+        run: docker push docker.pkg.github.com/$GITHUB_REPOSITORY/conventional-github-releaser:${GITHUB_REF/refs\/tags\//}
