@@ -2,6 +2,7 @@ import generateChangelog from "./generateChangelog.mjs";
 import getBundleReportStats from "./getBundleReportStats.mjs";
 import uploadToGithub from "./uploadToGithub.mjs";
 import getTags from "./getTags.mjs";
+import prettyBytes from 'pretty-bytes';
 
 const sortByName = (a, b) => {
     const nameA = a.name.toUpperCase();
@@ -19,9 +20,16 @@ const sortByName = (a, b) => {
 
 const primaryChunkNames = ['vendor', 'client', 'main'];
 
+export function urlWithAssetPrefixMarkDown(fileName) {
+    const assetprefix = process.env.ASSET_PREFIX; // https://example.com/assets/
+    if (assetprefix) return `[${fileName}](${assetprefix}${fileName})`;
+    return fileName;
+}
+
 export default async () => {
     const isDraft = process.argv.includes('--draft');
     const pullRequestWorkflow = process.argv.includes('--pull-request-based');
+
     const appVersion = process.env.APP_VERSION; // short git hash = 015e3d2
     const appTag = process.env.APP_TAG; // version = v1.2.3
 
@@ -73,18 +81,20 @@ export default async () => {
     let extra = '';
 
     if (statsReport) {
-        extra += '### Bundle Sizes 📦\n\n';
-        extra += '| Chunk        | File         | Size         |\n';
-        extra += '| ------------ | ------------ | ------------ |\n';
         const jsAssets = statsReport.assets.filter(asset => asset.fileName.endsWith('js'));
         const primaryChunks = jsAssets.filter(asset => primaryChunkNames.includes(asset.name)).sort(sortByName);
         const lazyAssets = jsAssets.filter(asset => !primaryChunkNames.includes(asset.name)).map(asset => ({
             ...asset,
             name: asset.name || ((asset.fileName || '').endsWith('js') ? asset.fileName : undefined)
         })).sort(sortByName);
-        extra += primaryChunks.map(asset => `| ${asset.name} 📥 | ${asset.fileName} | ${asset.sizeHuman} |`).join('\n');
+        const fileCount = jsAssets.length;
+        const fileSize = jsAssets.reduce((acc, value) => { return acc + value.size; }, 0);
+        extra += '### Bundle Sizes 📦\n\n';
+        extra += `| Chunk        | File (${fileCount})  | Size (${prettyBytes(fileSize)})        |\n`;
+        extra += '| ------------ | -------- | ------------ |\n';
+        extra += primaryChunks.map(asset => `| ${asset.name} ▪️ | ${urlWithAssetPrefixMarkDown(asset.fileName)} | ${asset.sizeHuman} |`).join('\n');
         if (primaryChunks.length) extra += '\n';
-        extra += lazyAssets.map(asset => `| ${asset.name} | ${asset.fileName} | ${asset.sizeHuman} |`).join('\n');
+        extra += lazyAssets.map(asset => `| ${asset.name} | ${urlWithAssetPrefixMarkDown(asset.fileName)} | ${asset.sizeHuman} |`).join('\n');
         if (lazyAssets.length) extra += '\n';
     }
 
