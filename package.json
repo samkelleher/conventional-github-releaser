@@ -17,7 +17,7 @@
     "conventional-changelog-conventionalcommits": "^4.2.1",
     "conventional-changelog-core": "^4.0.2",
     "date-fns": "^2.8.1",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "pretty-bytes": "^5.2.0"
   },
   "devDependencies": {
